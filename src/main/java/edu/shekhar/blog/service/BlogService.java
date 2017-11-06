@@ -4,6 +4,7 @@ import edu.shekhar.blog.dao.BlogDao;
 import edu.shekhar.blog.entity.Blog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -12,7 +13,7 @@ import java.util.Collection;
 public class BlogService {
 
     @Autowired
-    @Qualifier("mysql")
+    @Qualifier("postgresql")
     private BlogDao blogDao;
 
     public Collection<Blog> getAllBlogs(){

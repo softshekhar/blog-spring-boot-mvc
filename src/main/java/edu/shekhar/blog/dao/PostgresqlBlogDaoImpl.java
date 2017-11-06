@@ -4,18 +4,25 @@ import edu.shekhar.blog.entity.Blog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.stereotype.Repository;
 
+import javax.annotation.PostConstruct;
+import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 
-@Repository("mysql")
-public class MySqlBlogDaoImpl implements BlogDao {
+@Repository("postgresql")
+public class PostgresqlBlogDaoImpl extends JdbcDaoSupport implements BlogDao {
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+    @Autowired DataSource dataSource;
+
+    @PostConstruct
+    private void initialize(){
+        setDataSource(dataSource);
+    }
 
     private static class BlogRowMapper implements RowMapper<Blog> {
 
@@ -35,7 +42,7 @@ public class MySqlBlogDaoImpl implements BlogDao {
     public Collection<Blog> getAllBlogs() {
         // SELECT column_name(s) FROM table_name
         final String sql = "SELECT id, title, categories, content FROM blogs";
-        List<Blog> blogs = jdbcTemplate.query(sql, new BlogRowMapper());
+        List<Blog> blogs = getJdbcTemplate().query(sql, new BlogRowMapper());
         return blogs;
     }
 
@@ -43,7 +50,7 @@ public class MySqlBlogDaoImpl implements BlogDao {
     public Blog getBlogById(int id) {
         // SELECT column_name(s) FROM table_name where column = value
         final String sql = "SELECT id, title, categories, content FROM blogs where id = ?";
-        Blog blog = jdbcTemplate.queryForObject(sql, new BlogRowMapper(), id);
+        Blog blog = getJdbcTemplate().queryForObject(sql, new BlogRowMapper(), id);
         return blog;
     }
 
@@ -52,7 +59,7 @@ public class MySqlBlogDaoImpl implements BlogDao {
         // DELETE FROM table_name
         // WHERE some_column = some_value
         final String sql = "DELETE FROM blogs WHERE id = ?";
-        jdbcTemplate.update(sql, id);
+        getJdbcTemplate().update(sql, id);
     }
 
     @Override
@@ -65,7 +72,7 @@ public class MySqlBlogDaoImpl implements BlogDao {
         final String title = blog.getTitle();
         final String categories = blog.getCategories();
         final String content = blog.getContent();
-        jdbcTemplate.update(sql, new Object[]{title, categories, content, id});
+        getJdbcTemplate().update(sql, new Object[]{title, categories, content, id});
     }
 
     @Override
@@ -76,7 +83,7 @@ public class MySqlBlogDaoImpl implements BlogDao {
         final String title = blog.getTitle();
         final String categories = blog.getCategories();
         final String content = blog.getContent();
-        jdbcTemplate.update(sql, new Object[]{title, categories, content});
+        getJdbcTemplate().update(sql, new Object[]{title, categories, content});
 
     }
 }
